@@ -6,7 +6,7 @@
 /*   By: taya <taya@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/20 16:54:14 by taya              #+#    #+#             */
-/*   Updated: 2025/02/06 14:54:51 by taya             ###   ########.fr       */
+/*   Updated: 2025/02/07 15:26:58 by taya             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	last_cmd(t_data *data, int pipe_fd[][2])
 {
 	int	fd;
 
-	fd = ft_open_file(data->argv[data->argc - 1], 1);
+	fd = ft_open_file_bonus(data->argv[data->argc - 1], 1, data->here_doc);
 	if (fd == -1)
 		exit(EXIT_FAILURE);
 	dup2(pipe_fd[data->i - 1][0], STDIN_FILENO);

@@ -6,7 +6,7 @@
 /*   By: taya <taya@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:46:19 by taya              #+#    #+#             */
-/*   Updated: 2025/02/07 14:27:03 by taya             ###   ########.fr       */
+/*   Updated: 2025/02/07 15:27:10 by taya             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ typedef struct s_data
 	int		here_doc;
 }			t_data;
 
-int			ft_open_file(const char *file, int mode);
+int			ft_open_file_bonus(const char *file, int mode, int here_doc);
 char		*get_path(char **env);
 char		*ft_strcpy(char *dest, char *src);
 char		*ft_strcat(char *dest, char *src);

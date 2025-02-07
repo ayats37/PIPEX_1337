@@ -6,13 +6,13 @@
 /*   By: taya <taya@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/17 00:09:51 by taya              #+#    #+#             */
-/*   Updated: 2025/01/21 22:12:04 by taya             ###   ########.fr       */
+/*   Updated: 2025/02/07 15:26:43 by taya             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "pipex_bonus.h"
 
-int	ft_open_file(const char *file, int mode)
+int	ft_open_file_bonus(const char *file, int mode, int here_doc)
 {
 	int	fd;
 
@@ -28,7 +28,10 @@ int	ft_open_file(const char *file, int mode)
 	}
 	else if (mode == 1)
 	{
-		fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+		if (here_doc)
+			fd = open(file, O_WRONLY | O_CREAT | O_APPEND, 0644);
+		else
+			fd = open(file, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		if (fd == -1)
 		{
 			perror("error opening file");

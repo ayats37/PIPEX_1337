@@ -6,7 +6,7 @@
 /*   By: taya <taya@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/15 17:45:32 by taya              #+#    #+#             */
-/*   Updated: 2025/02/07 14:26:48 by taya             ###   ########.fr       */
+/*   Updated: 2025/02/07 15:06:41 by taya             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,5 +57,6 @@ int	main(int argc, char **argv, char **env)
 	create_children(&data, pipe_fd);
 	close_pipes(&data, pipe_fd);
 	wait_children(&data, &status);
+	unlink("file");
 	return (WEXITSTATUS(status));
 }
