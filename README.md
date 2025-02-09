@@ -20,7 +20,7 @@ The project demonstrates how to manipulate file descriptors and manage multiple 
 - **`execve()`**: Executes commands in the child processes.
 - **`waitpid()`**: Waits for child processes to finish execution.
 
-# Pipex Test Suite
+# Pipex Test
 
 This repository provides a set of tests for the `pipex` project to ensure its functionality under various conditions.
 
