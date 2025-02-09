@@ -20,118 +20,145 @@ The project demonstrates how to manipulate file descriptors and manage multiple 
 - **`execve()`**: Executes commands in the child processes.
 - **`waitpid()`**: Waits for child processes to finish execution.
 
-# Pipex Hard Test Suite
+# Pipex Test Suite
 
-These tests aim to challenge the `pipex` project with more complex scenarios, edge cases, and error handling.
+This repository provides a set of tests for the `pipex` project to ensure its functionality under various conditions.
 
-## Tests
+## **Easy Tests**
 
-### **Advanced Tests**
+These tests cover the basic functionality of piping between two commands, simple redirections, and error handling.
 
-1. **Test 1: Multiple commands with pipes and redirections (complex chain)**  
+### 1. **Test 1: Basic Pipe Between Two Commands**  
    - Command:  
      ```bash
-     ./pipex input.txt "cat" "grep 'hello world'" "sort" "uniq" output.txt
+     ./pipex input.txt "cat" "grep hello" output.txt
      ```
-   - Expected output: The content of `input.txt` should be processed through the following steps:
-     1. `cat`: Output the content of `input.txt`.
-     2. `grep 'hello world'`: Filter lines containing "hello world".
-     3. `sort`: Sort the filtered lines.
-     4. `uniq`: Remove duplicate lines.
-   - Result: The unique sorted lines containing "hello world" should be written to `output.txt`.
+   - Expected Output:  
+     The contents of `input.txt` should be piped through `cat` and then filtered by `grep hello`, writing the result to `output.txt`.
 
-2. **Test 2: Non-existent command in the middle of a pipe chain**  
+### 2. **Test 2: Pipe with Input and Output Redirection**  
    - Command:  
      ```bash
-     ./pipex input.txt "cat" "nonexistentcommand" "grep hello" output.txt
+     ./pipex input.txt "cat" "sort" output.txt
      ```
-   - Expected output: The command should fail after `nonexistentcommand` is reached, displaying an error message like `command not found`. `output.txt` should not be created.
+   - Expected Output:  
+     The content of `input.txt` should be sorted and written to `output.txt`.
 
-3. **Test 3: Edge case with an empty input file**  
+### 3. **Test 3: Pipe With Redirection of Error Output**  
+   - Command:  
+     ```bash
+     ./pipex input.txt "cat" "grep nonexistent" output.txt 2> error.txt
+     ```
+   - Expected Output:  
+     The program should handle the error gracefully, writing error messages to `error.txt`.
+
+### 4. **Test 4: Pipe Between Two Commands with No Input File**  
+   - Command:  
+     ```bash
+     ./pipex nonexistent_input.txt "cat" "sort" output.txt
+     ```
+   - Expected Output:  
+     The program should handle the missing input file and print an appropriate error message without crashing.
+
+### 5. **Test 5: Pipe With Empty Input File**  
    - Command:  
      ```bash
      ./pipex empty.txt "cat" "grep hello" output.txt
      ```
-   - Expected output: Since `empty.txt` is empty, no output should be written to `output.txt`, and the program should handle this gracefully without errors.
+   - Expected Output:  
+     No output should be written to `output.txt` since `empty.txt` is empty.
 
-4. **Test 4: Input file with special characters (escaping)**  
+---
+
+## **Hard Tests**
+
+These tests aim to challenge the program with more complex scenarios, edge cases, and error handling.
+
+### 1. **Test 1: Multiple Commands with Pipes**  
+   - Command:  
+     ```bash
+     ./pipex input.txt "cat" "grep hello" "sort" "uniq" output.txt
+     ```
+   - Expected Output:  
+     The program should pipe the contents of `input.txt` through `cat`, filter lines with "hello", sort the lines, and remove duplicates. The final result should be written to `output.txt`.
+
+### 2. **Test 2: Non-Existent Command in the Middle of a Pipe Chain**  
+   - Command:  
+     ```bash
+     ./pipex input.txt "cat" "nonexistentcommand" "grep hello" output.txt
+     ```
+   - Expected Output:  
+     The program should stop and display an error when encountering the `nonexistentcommand` and not proceed further in the pipe chain.
+
+### 3. **Test 3: Pipe with Special Characters in Input**  
    - Command:  
      ```bash
      ./pipex special_chars.txt "cat" "grep 'hello $world'" output.txt
      ```
-   - Expected output: The program should correctly interpret `$world` as part of the string, and not expand it. The program should output lines containing "hello $world" to `output.txt`.
+   - Expected Output:  
+     The program should correctly interpret `$world` as part of the string and not expand it as a variable. It should match and output lines containing "hello $world".
 
-5. **Test 5: Pipe with both input and output redirection to non-existent files**  
+### 4. **Test 4: Handling Multiple Redirections Simultaneously**  
    - Command:  
      ```bash
-     ./pipex non_existent_file "cat" "grep hello" > "non_existent_output_file"
+     ./pipex input.txt "cat" "grep hello" "sort" > output.txt 2> error.txt
      ```
-   - Expected output: It should fail with an error like `No such file or directory` for the input file. `non_existent_output_file` should not be created.
+   - Expected Output:  
+     The program should correctly handle both the standard output and standard error redirections, placing the output into `output.txt` and errors into `error.txt`.
 
-6. **Test 6: Multiple pipes with incorrect file permissions**  
+### 5. **Test 5: Missing Input File (Error Handling)**  
    - Command:  
      ```bash
-     ./pipex input.txt "cat" "grep hello" "sort" "uniq" > /root/output.txt
+     ./pipex nonexistent_file.txt "cat" "grep hello" output.txt
      ```
-   - Expected output: It should return a permission error for writing to `/root/output.txt`, since the user likely does not have permission to write to that directory.
+   - Expected Output:  
+     The program should print an error message, indicating the missing input file and not attempt to create or write to `output.txt`.
 
-7. **Test 7: Handling invalid argument types for commands**  
-   - Command:  
-     ```bash
-     ./pipex input.txt "cat" "grep" 123 "wc -l" output.txt
-     ```
-   - Expected output: It should return an error indicating that the argument `123` is invalid for `grep`.
-
-8. **Test 8: Pipe with very large files**  
+### 6. **Test 6: Input File with Large Data (Performance)**  
    - Command:  
      ```bash
      ./pipex large_input.txt "cat" "grep hello" "sort" "uniq" output.txt
      ```
-   - Expected output: The program should handle large files (e.g., multiple gigabytes) without crashing. It should sort and output the unique lines containing "hello" to `output.txt`.
+   - Expected Output:  
+     The program should successfully handle large input files, process them through the pipes, and output the result to `output.txt`.
 
-9. **Test 9: Command that generates large output (buffering test)**  
+### 7. **Test 7: Multiple Pipes with Background Processes**  
    - Command:  
      ```bash
-     ./pipex large_input.txt "yes hello" "head -n 100000" output.txt
+     ./pipex input.txt "cat &" "grep hello" "sort" output.txt
      ```
-   - Expected output: The program should process the `yes` command to generate a large number of "hello" strings, pipe the output to `head -n 100000`, and write the first 100,000 "hello" lines to `output.txt`. Ensure no excessive memory usage or crashes.
+   - Expected Output:  
+     The `cat` command should run in the background, and the rest of the chain should execute normally, producing the expected result in `output.txt`.
 
-10. **Test 10: Pipe and file redirection with special characters in filenames**  
-    - Command:  
-      ```bash
-      ./pipex "input with spaces.txt" "grep hello" "wc -l" "output with spaces.txt"
-      ```
-    - Expected output: The program should correctly handle files with spaces in their names, properly redirect input and output, and count the lines with "hello" in `input with spaces.txt`, writing the result to `output with spaces.txt`.
+### 8. **Test 8: Invalid Command Argument**  
+   - Command:  
+     ```bash
+     ./pipex input.txt "cat" "grep" "123" "wc -l" output.txt
+     ```
+   - Expected Output:  
+     The program should detect the invalid argument `"123"` and return an appropriate error message.
 
-11. **Test 11: Pipe with environment variables**  
-    - Command:  
-      ```bash
-      export GREETING="hello"
-      ./pipex input.txt "cat" "grep $GREETING" output.txt
-      ```
-   - Expected output: The `grep` command should match lines containing the value of the environment variable `GREETING`, which is "hello". It should write matching lines to `output.txt`.
+### 9. **Test 9: Handling File Permissions Issues**  
+   - Command:  
+     ```bash
+     ./pipex input.txt "cat" "grep hello" > /root/output.txt
+     ```
+   - Expected Output:  
+     The program should fail due to a lack of permission to write to `/root/output.txt`, displaying an error message.
 
-12. **Test 12: Command chain with a mix of background and foreground processes**  
-    - Command:  
-      ```bash
-      ./pipex input.txt "cat &" "grep hello" "wc -l" output.txt
-      ```
-   - Expected output: The `cat` command runs in the background while the rest of the pipe chain executes normally, counting the number of lines containing "hello" and writing the result to `output.txt`.
+### 10. **Test 10: Pipe with Environment Variables**  
+   - Command:  
+     ```bash
+     export GREETING="hello"
+     ./pipex input.txt "cat" "grep $GREETING" output.txt
+     ```
+   - Expected Output:  
+     The program should correctly handle environment variables and filter lines containing the value of `$GREETING`, which is "hello", writing the results to `output.txt`.
 
-13. **Test 13: Pipe with command failures during multiple redirects**  
-    - Command:  
-      ```bash
-      ./pipex input.txt "cat" "grep hello" "nonexistentcommand" output.txt
-      ```
-   - Expected output: The program should display an error due to the failure of the `nonexistentcommand` and should not create `output.txt`.
+---
 
-14. **Test 14: Large number of pipes**  
-    - Command:  
-      ```bash
-      ./pipex input.txt $(for i in {1..1000}; do echo "cat"; done) output.txt
-      ```
-    - Expected output: The program should be able to handle a large number of pipes, properly redirecting each command and writing the output to `output.txt`.
+## Conclusion
 
-### Conclusion
+These tests cover both simple cases for basic functionality and more complex scenarios that challenge error handling, edge cases, performance, and environment variable handling. Make sure your implementation can handle all these tests without issues.
 
-These advanced tests are designed to push the boundaries of the `pipex` implementation, checking for robust error handling, large file handling, correct processing of special characters, and more complex scenarios like handling environment variables and background processes. Ensure your code can handle these situations gracefully.
+
